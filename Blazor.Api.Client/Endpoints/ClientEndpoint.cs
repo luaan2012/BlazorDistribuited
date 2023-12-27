@@ -7,12 +7,12 @@ namespace Blazor.Api.Client.Endpoints
     {
         public static void MapUserEndpoints(this WebApplication app)
         {
-            app.MapPost("ListAll", ListAll).RequireAuthorization();
+            app.MapGet("ListAll", ListAll);
             app.MapPost("ListById", ListById).RequireAuthorization();
-            app.MapPost("Edit", Edit).RequireAuthorization();
-            app.MapPost("Delete", Delete).RequireAuthorization();
-            app.MapPost("Inactive", Inactive).RequireAuthorization();
-            app.MapPost("Active", Inactive).RequireAuthorization();
+            app.MapPut("Edit", Edit).RequireAuthorization();
+            app.MapDelete("Delete", Delete).RequireAuthorization();
+            app.MapPut("Inactive", Inactive).RequireAuthorization();
+            app.MapPut("Active", Inactive).RequireAuthorization();
         }
 
         public static async Task<IResult> ListAll(IClientService clientService)

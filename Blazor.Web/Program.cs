@@ -1,3 +1,4 @@
+using Blazor.Web;
 using Blazor.Web.Components;
 using Radzen;
 
@@ -10,6 +11,8 @@ builder.Services.AddRadzenComponents();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient<WeatherApiClient>();
 
 var app = builder.Build();
 

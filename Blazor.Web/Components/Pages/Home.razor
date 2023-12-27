@@ -1,96 +1,166 @@
 ﻿@using Radzen
-@using System.ComponentModel.DataAnnotations
 
+@inject WeatherApiClient WeatherApiClient
 @inject DialogService DialogService
 
 @page "/"
 
-<PageTitle>Clientes</PageTitle>
+ <style>
+    .rz-grid-table {
+        width: unset;
+    }
+</style>
 
-<RadzenDataGrid LoadData="LoadData" IsLoading=@isLoading Count="count" Data=@employees FilterMode="FilterMode.Advanced" AllowFiltering="true" AllowPaging="true" AllowSorting="true" TItem="Employee" ColumnWidth="200px">
+<RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Adicionar novo cliente" Click="@InsertRow" Disabled=@(clientToInsert != null || clientToUpdate != null) />
+<RadzenDataGrid @ref="clientsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
+                Data="@clients" TItem="Client" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
     <Columns>
-        <RadzenDataGridColumn TItem="Employee" Property="ID" Title="ID" />
-        <RadzenDataGridColumn TItem="Employee" Property="Gender" Title="Gender" />
-        <RadzenDataGridColumn TItem="Employee" Property="Status" Title="Nullable Status" />
-        <RadzenDataGridColumn TItem="Employee" Property="Color" Title="Favorite Color (Display Attribute in Filter)" />
+        <RadzenDataGridColumn TItem="Client" Property="Number" Title="Order ID" Width="120px" Frozen="true" />
+        <RadzenDataGridColumn TItem="Client" Property="Name" Title="Nome" Width="120px" Frozen="true">
+            <EditTemplate Context="client">
+                <RadzenTextBox @bind-Value="client.Name" Style="width:200px; display: block" Name="Name" />
+                <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="LastName" Title="Último nome" Width="120px" Frozen="true">
+            <EditTemplate Context="client">
+                <RadzenTextBox @bind-Value="client.LastName" Style="width:200px; display: block" Name="LastName" />
+                <RadzenRequiredValidator Text="LastName is required" Component="LastName" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="Address" Title="Endereço" Width="120px" Frozen="true">
+            <EditTemplate Context="client">
+                <RadzenTextBox @bind-Value="client.Address" Style="width:200px; display: block" Name="Address" />
+                <RadzenRequiredValidator Text="Address is required" Component="Address" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="Number" Title="Número" Width="120px" Frozen="true">
+            <Template Context="client">
+                @String.Format("{0}", client.Number)
+            </Template>
+            <EditTemplate Context="client">
+                <RadzenDatePicker @bind-Value="client.Number" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="DateCreated" Title="Data de criação" Width="120px" Frozen="true">
+            <Template Context="client">
+                @String.Format("{0:d}", client.DateCreated)
+            </Template>
+            <EditTemplate Context="client">
+                <RadzenDatePicker @bind-Value="client.DateCreated" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="DateModificated" Title="Data de modificação" Width="120px" Frozen="true">
+            <Template Context="client">
+                @String.Format("{0:d}", client.DateModificated)
+            </Template>
+            <EditTemplate Context="client">
+                <RadzenDatePicker @bind-Value="client.DateModificated" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="DateDeleted" Title="Data de criação" Width="120px" Frozen="true">
+            <Template Context="client">
+                @String.Format("{0:d}", client.DateDeleted)
+            </Template>
+            <EditTemplate Context="client">
+                <RadzenDatePicker @bind-Value="client.DateDeleted" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Property="Active" Title="Ativo" Width="120px" Frozen="true">
+            <EditTemplate Context="client">
+                <RadzenDropDown @bind-Value="client.Active" Data="@clients" TextProperty="Active" ValueProperty="Active" Style="width:100%; display: block;" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Client" Context="client" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="client">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(client))" @onclick:stopPropagation="true">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow())" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="client">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(client))">
+                </RadzenButton>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit())">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow())">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
 
 @code {
-    int count;
-    IEnumerable<Employee> initialEmployees;
-    IEnumerable<Employee> employees;
-    bool isLoading = false;
+    RadzenDataGrid<Client> clientsGrid;
+    IEnumerable<Client> clients;
 
-    public class Employee
+    Client clientToInsert;
+    Client clientToUpdate;
+
+    void Reset()
     {
-        public int ID { get; set; }
-        public GenderType Gender { get; set; }
-        public StatusType? Status { get; set; }
-        public ColorType Color { get; set; }
+        clientToInsert = null;
+        clientToUpdate = null;
     }
 
-    public enum GenderType
+    protected override async Task OnInitializedAsync()
     {
-        Ms,
-        Mr,
-        Unknown,
+        await base.OnInitializedAsync();
+
+        clients = await WeatherApiClient.GetClientsAsync();
+
+        // customers = dbContext.Customers;
+        // employees = dbContext.Employees;
+
+        // orders = dbContext.Orders.Include("Customer").Include("Employee");
     }
 
-    public enum ColorType
+    async Task EditRow(Client client)
     {
-        Red,
-        Green,
-        Blue,
-        [Display(Description = "Almond Green")]
-        AlmondGreen,
-        [Display(Description = "Amber Gray")]
-        AmberGray,
-        [Display(Description = "Apple Blue... ")]
-        AppleBlueSeaGreen,
-        //[Display(Description = "Miss", ResourceType = typeof(ResourceFile)] localization example
-        [Display(Description = "Azure")]
-        AzureBlue,
+        clientToInsert = client;
+        await clientsGrid.EditRow(client);
+    }
+
+    void OnUpdateRow()
+    {
 
     }
 
-    public enum StatusType
+    async Task SaveRow(Client client)
     {
-        Inactive,
-        Active,
+        await clientsGrid.UpdateRow(client);
     }
 
-    protected override void OnInitialized()
+    void CancelEdit()
     {
-        initialEmployees = Enumerable.Range(0, 10).Select(i =>
-            new Employee
-            {
-                ID = i,
-                Gender = i < 3 ? GenderType.Mr : i < 6 ? GenderType.Ms : GenderType.Unknown,
-                Status = i < 3 ? StatusType.Active : i < 6 ? StatusType.Inactive : null,
-                Color = i < 2 ? ColorType.Red: i < 4 ? ColorType.AlmondGreen : i < 6 ? ColorType.AppleBlueSeaGreen : ColorType.AzureBlue,
-            });
+
     }
 
-    void LoadData(LoadDataArgs args)
+    async Task DeleteRow()
     {
-        isLoading = true;
-        var query = initialEmployees.AsQueryable();
 
-        if (!string.IsNullOrEmpty(args.Filter))
-        {
-            query = query.Where(x => x.Equals(args.Filter));
-        }
+    }
 
-        if (!string.IsNullOrEmpty(args.OrderBy))
-        {
-            query = query.OrderBy(x => x.Equals(args.Filter));
-        }
+    async Task InsertRow()
+    {
+        clientToInsert = new Client();
+        await clientsGrid.InsertRow(clientToInsert);
+    }
 
-        count = query.Count();
+    void OnCreateRow()
+    {
+        
+    }
 
-        employees = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
-        isLoading = false;
-
+    public class Client
+    {
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
+        public string? Address { get; set; }
+        public int Number { get; set; }
+        public bool? Active { get; set; }
+        public DateTime? DateModificated { get; set; }
+        public DateTime? DateDeleted { get; set; }
+        public DateTime? DateCreated { get; set; }
     }
 }
