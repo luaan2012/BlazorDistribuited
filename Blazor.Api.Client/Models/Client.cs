@@ -1,8 +1,12 @@
-﻿namespace Blazor.Api.Client.Models
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace Blazor.Api.Client.Models
 {
     public class Client
     {
         public Guid Id { get; set; } = new Guid();
+        public string? Email{ get; set; }
         public string? Name { get; set; }
         public string? LastName { get; set; }
         public string? Address { get; set; }

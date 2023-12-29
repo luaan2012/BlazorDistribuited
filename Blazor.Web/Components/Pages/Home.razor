@@ -12,8 +12,8 @@
 </style>
 
 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Adicionar novo cliente" Click="@InsertRow" Disabled=@(clientToInsert != null || clientToUpdate != null) />
-<RadzenDataGrid @ref="clientsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
-                Data="@clients" TItem="Client" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+<RadzenDataGrid @ref="clientsGrid" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="5" AllowSorting="true"
+                Data="@clients" TItem="Client">
     <Columns>
         <RadzenDataGridColumn TItem="Client" Property="Number" Title="Order ID" Width="120px" Frozen="true" />
         <RadzenDataGridColumn TItem="Client" Property="Name" Title="Nome" Width="120px" Frozen="true">
@@ -71,22 +71,6 @@
                 <RadzenDropDown @bind-Value="client.Active" Data="@clients" TextProperty="Active" ValueProperty="Active" Style="width:100%; display: block;" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Client" Context="client" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-            <Template Context="client">
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(client))" @onclick:stopPropagation="true">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow())" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="client">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(client))">
-                </RadzenButton>
-                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit())">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow())">
-                </RadzenButton>
-            </EditTemplate>
-        </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
 
@@ -120,6 +104,7 @@
         clientToInsert = client;
         await clientsGrid.EditRow(client);
     }
+
 
     void OnUpdateRow()
     {

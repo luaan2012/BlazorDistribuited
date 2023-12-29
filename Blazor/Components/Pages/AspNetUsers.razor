@@ -1,0 +1,68 @@
+@page "/asp-net-users"
+
+<PageTitle>AspNetUsers</PageTitle>
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="AspNetUsers" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenSplitButton Icon="get_app" Text="Export" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                    <RadzenSplitButtonItem Text="CSV" Value="csv" />
+                </RadzenSplitButton>
+                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow>
+      <RadzenColumn SizeMD=12>
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"  AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
+            Data="@aspNetUsers" TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" RowDoubleClick="@EditRow">
+            <Columns>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="Id" Title="Id">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="UserName" Title="User Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="NormalizedUserName" Title="Normalized User Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="Email" Title="Email">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="NormalizedEmail" Title="Normalized Email">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="EmailConfirmed" Title="Email Confirmed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="PasswordHash" Title="Password Hash">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="SecurityStamp" Title="Security Stamp">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="ConcurrencyStamp" Title="Concurrency Stamp">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="PhoneNumber" Title="Phone Number">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="PhoneNumberConfirmed" Title="Phone Number Confirmed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="TwoFactorEnabled" Title="Two Factor Enabled">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="LockoutEnd" Title="Lockout End">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="LockoutEnabled" Title="Lockout Enabled">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Property="AccessFailedCount" Title="Access Failed Count">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Blazor.Web.Models.BlazorWeb.AspNetUser" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="aspNetUser">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, aspNetUser)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenColumn>
+  </RadzenRow>
+</RadzenStack>

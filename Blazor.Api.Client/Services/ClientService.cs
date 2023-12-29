@@ -79,6 +79,7 @@ namespace Blazor.Api.Client.Services
         {
             return new Models.Client
             {
+                Email = clientCommander.Email,
                 Name = clientCommander.Name,
                 LastName = clientCommander.LastName,
                 Address = clientCommander.Address,

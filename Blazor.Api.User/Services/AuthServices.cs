@@ -65,7 +65,7 @@ public class AuthServices(
         var result = await _userManager.CreateAsync(user, request.Password);
 
         if (result.Succeeded)
-        {
+        {            
             await _publishEndpoint.Publish(ClientToClientCommand(request));
             return result;
         }
@@ -185,6 +185,7 @@ public class AuthServices(
     {
         return new ClientCommander
         {
+            Email = requestRegister.Email,
             Name = requestRegister.Name,
             LastName = requestRegister.LastName,
             Address = requestRegister.Address,
