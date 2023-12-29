@@ -1,23 +1,20 @@
-using Blazor.Web;
-using Blazor.Web.Components;
 using Radzen;
+using Blazor.Web.Components;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.AddServiceDefaults();
-
-builder.Services.AddRadzenComponents();
-
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddHttpClient<WeatherApiClient>();
-
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddControllers();
+builder.Services.AddRadzenComponents();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<Blazor.Web.BlazorWebService>();
+builder.Services.AddDbContext<Blazor.Web.Data.BlazorWebContext>(options =>
+{
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlazorWebConnection"));
+});
 var app = builder.Build();
-
-app.MapDefaultEndpoints();
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -27,11 +24,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.MapControllers();
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.Run();
